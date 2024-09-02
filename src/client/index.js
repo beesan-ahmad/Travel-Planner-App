@@ -1,5 +1,5 @@
 // js files
-import { processSubmission } from './js/formHandler.js'
+import './js/travelHandler'
 // sass files
 import './styles/resets.scss'
 import './styles/base.scss'
@@ -7,5 +7,5 @@ import './styles/footer.scss'
 import './styles/form.scss'
 import './styles/header.scss'
 
-document.getElementById('analyze-form')
-    .addEventListener('submit', processSubmission);
+// document.getElementById('analyze-form')
+//     .addEventListener('submit', processSubmission);

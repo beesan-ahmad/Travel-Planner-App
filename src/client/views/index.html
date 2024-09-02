@@ -5,6 +5,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Travel App</title>
+	<!-- <link rel="stylesheet" href="../styles/all-styles.scss"> -->
 </head>
 
 <body>
@@ -15,19 +16,23 @@
 		<form id="travel-form">
 			<label for="destination">Enter your destination:</label>
 			<input type="text" id="destination" name="destination" required>
+
 			<label for="date">Date:</label>
-            <input type="date" id="date" name="date" required>
-			<button type="submit">submit</button>
+			<input type="date" id="date" name="date" required>
+
+			<button type="submit">Submit</button>
 		</form>
 
-		<!-- <section id="results">
-			<h2>Analysis Results:</h2>
-			<p id="polarity"></p>
-			<p id="subjectivity"></p>
-			<p id="text"></p>
-		</section> -->
+		<section id="results">
+			<h2>Weather Forecast:</h2>
+			<p id="forecast"></p>
+		</section>
 	</main>
-	<!-- <script src="../js/index.js"></script> -->
+	<footer>
+        <p>&copy; Beesan Abu-Mfarreh 2024 Travel App</p>
+    </footer>
+
+	<!-- <script src="../js/travelHandler.js"></script> -->
 	<script>
 		if ('serviceWorker' in navigator) {
 			window.addEventListener('load', () => {
@@ -39,7 +44,6 @@
 			});
 		}
 	</script>
-
 </body>
 
 </html>
