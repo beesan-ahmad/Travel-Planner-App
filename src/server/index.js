@@ -1,32 +1,41 @@
-const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
+const path = require('path');
 
+// Initialize environment variables
 dotenv.config();
 
 const app = express();
 
-// Middleware to parse JSON
+// Middleware to parse incoming requests
 app.use(express.json());
-
-// Serve static files from the 'dist' directory
 app.use(express.static('dist'));
 
-// API route for Geonames, Weatherbit, and Pixabay
-app.post('/api/travel', async (req, res) => {
-    const { location, date } = req.body;
+// Assign environment variables to constants
+const geonamesUsername = process.env.GEONAMES_USERNAME || 'beesan';  // Fall back to 'beesan' if not in .env
+const weatherbitApiKey = process.env.WEATHER_KEY;
+const pixabayApiKey = process.env.PIXAbBAY_KEY;
 
+// Log the API keys to verify
+console.log(`Geonames Username: ${geonamesUsername}`);
+console.log(`Weatherbit API Key: ${weatherbitApiKey}`);
+console.log(`Pixabay API Key: ${pixabayApiKey}`);
 
-    res.send({ success: true, message: 'Request received' });
+// Endpoint to expose API keys
+app.get('/apiKeys', (req, res) => {
+    res.json({
+        geonamesUsername,
+        weatherbitApiKey,
+        pixabayApiKey
+    });
 });
 
-// Fallback route for the root
-app.get('/', (req, res) => {
+// Serve index.html from the dist folder
+app.get('/', function (req, res) {
     res.sendFile(path.resolve('dist/index.html'));
 });
 
-// Start the server
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+const port = process.env.PORT || 8080;
+app.listen(port, function () {
+    console.log(`Server is running on port ${port}`);
 });

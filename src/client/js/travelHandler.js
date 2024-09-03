@@ -1,38 +1,56 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('travel-form');
+// Function to fetch location data from Geonames API
+async function fetchLocationData(destination) {
+  const geonamesUsername = 'beesan';
 
-  form.addEventListener('submit', async (event) => {
-      event.preventDefault();
+  if (!geonamesUsername) {
+      throw new Error("Geonames username is not defined in the environment variables.");
+  }
 
-      const location = document.getElementById('location').value;
-      const date = document.getElementById('date').value;
+  const url = `http://api.geonames.org/searchJSON?q=${destination}&maxRows=1&username=${geonamesUsername}`;
 
-      try {
-          const response = await fetch('http://localhost:8080/getCity', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ location, date }),
-          });
+  try {
+      const response = await fetch(url);
 
-          const data = await response.json();
-
-          if (data.success) {
-              document.getElementById('results').innerHTML = `
-                  <h2>Weather Forecast for ${location}</h2>
-                  <p>${data.message}</p>
-              `;
-          } else {
-              document.getElementById('results').innerHTML = `
-                  <p>Error: ${data.message}</p>
-              `;
-          }
-      } catch (error) {
-          console.error('Error:', error);
-          document.getElementById('results').innerHTML = `
-              <p>Something went wrong. Please try again later.</p>
-          `;
+      if (!response.ok) {
+          throw new Error(`Geonames API request failed with status ${response.status}`);
       }
-  });
-});
+
+      const data = await response.json();
+      console.log(data);
+
+      if (!data || !data.geonames || data.geonames.length === 0) {
+          throw new Error("No location data found for the given destination.");
+      }
+
+      return data.geonames[0];
+  } catch (error) {
+      console.error("Error fetching location data:", error);
+      return null;
+  }
+}
+
+
+// Function to handle form submission
+async function handleTravelForm(event) {
+  event.preventDefault();
+
+  const destination = document.getElementById('destination').value;
+  const date = document.getElementById('date').value;
+
+  try {
+      const locationData = await fetchLocationData(destination);
+
+      if (!locationData) {
+          alert("Unable to retrieve location data. Please try again.");
+          return;
+      }
+
+      // Assuming additional logic here to handle weather data, etc.
+      console.log("Location Data:", locationData);
+
+  } catch (error) {
+      console.error("Error handling travel form submission:", error);
+  }
+}
+
+document.getElementById('travel-form').addEventListener('submit', handleTravelForm);
