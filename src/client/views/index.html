@@ -1,49 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Travel App</title>
-	<!-- <link rel="stylesheet" href="../styles/all-styles.scss"> -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Travel App</title>
+    <link href="../styles/all-styles.scss">
 </head>
-
 <body>
-	<header>
-		<h1 class="site-title">Where is your travel?</h1>
-	</header>
-	<main>
-		<form id="travel-form">
-			<label for="destination">Enter your destination:</label>
-			<input type="text" id="destination" name="destination" required>
+    <header>
+        <h1>Travel App</h1>
+    </header>
 
-			<label for="date">Date:</label>
-			<input type="date" id="date" name="date" required>
+    <main>
+        <section>
+            <form id="travel-form">
+                <label for="city">Enter the city:</label>
+                <input type="text" id="city" name="city" required>
+                
+                <label for="date">Enter your travel date:</label>
+                <input type="date" id="date" name="date" required>
 
-			<button type="submit">Submit</button>
-		</form>
+                <button type="submit">Submit</button>
+            </form>
 
-		<section id="results">
-			<h2>Weather Forecast:</h2>
-			<p id="forecast"></p>
-		</section>
-	</main>
-	<footer>
-        <p>&copy; Beesan Abu-Mfarreh 2024 Travel App</p>
+            <div id="results">
+                <!-- Results from the API calls will appear here -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Travel App</p>
     </footer>
 
-	<!-- <script src="../js/travelHandler.js"></script> -->
-	<script>
-		if ('serviceWorker' in navigator) {
-			window.addEventListener('load', () => {
-				navigator.serviceWorker.register('/service-worker.js').then(registration => {
-					console.log('Service Worker registered with scope:', registration.scope);
-				}).catch(error => {
-					console.error('Service Worker registration failed:', error);
-				});
-			});
-		}
-	</script>
+    <script src="index.js"></script>
 </body>
-
 </html>
