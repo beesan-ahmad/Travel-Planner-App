@@ -1,5 +1,5 @@
 // Import JS files
-import { processSubmission } from './js/travelHandler';
+import { handleTravelForm } from './js/travelHandler';
 
 // Import SCSS files
 import './styles/resets.scss';
@@ -9,4 +9,4 @@ import './styles/form.scss';
 import './styles/header.scss';
 
 // Add event listener to the form
-document.getElementById('travel-form').addEventListener('submit', processSubmission);
+document.getElementById('travel-form').addEventListener('submit', handleTravelForm);

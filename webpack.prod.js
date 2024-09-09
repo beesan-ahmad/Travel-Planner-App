@@ -5,12 +5,13 @@ const TerserPlugin = require('terser-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const WorkboxPlugin = require('workbox-webpack-plugin');
-
+const Dotenv = require('dotenv-webpack');
 // Check if the environment is production
 const isProduction = process.env.NODE_ENV === 'production';
 
 const plugins = [
     new CleanWebpackPlugin(),
+    new Dotenv(),
     new HtmlWebPackPlugin({
         template: "./src/client/views/index.html",
         filename: "./index.html",

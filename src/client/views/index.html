@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <title>Travel App</title>
     <link href="../styles/all-styles.scss">
 </head>
+
 <body>
     <header>
         <h1>Travel App</h1>
@@ -15,18 +17,22 @@
     <main>
         <section>
             <form id="travel-form">
-                <label for="city">Enter the city:</label>
-                <input type="text" id="city" name="city" required>
-                
+                <label for="destination">Enter the city:</label>
+                <input type="text" id="destination" name="destination" required>
+
                 <label for="date">Enter your travel date:</label>
                 <input type="date" id="date" name="date" required>
 
                 <button type="submit">Submit</button>
             </form>
 
-            <div id="results">
-                <!-- Results from the API calls will appear here -->
+            <div id="weather-result">
+                <p id="temperature"></p>
             </div>
+            <div id="image-result">
+                <img id="destination-image" />
+            </div>
+
         </section>
     </main>
 
@@ -36,4 +42,5 @@
 
     <script src="index.js"></script>
 </body>
+
 </html>

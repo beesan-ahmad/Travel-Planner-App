@@ -1,59 +1,109 @@
-// Function to handle form submission
-export const processSubmission = async (event) => {
-    event.preventDefault();
+const pixabayApiKey = process.env.PIXABAY_KEY || '45771225-18d216db83f778795e65302de';
 
-    const city = document.getElementById('city').value;
-    const date = document.getElementById('date').value;
-    
-    // Calculate remaining days to the travel date
-    const today = new Date();
-    const travelDate = new Date(date);
-    const remainingDays = Math.ceil((travelDate - today) / (1000 * 60 * 60 * 24));
-
+// Function to fetch location data from Geonames API
+async function fetchLocationData(destination) {
+    const geonamesUsername = 'beesan';
+  
+    if (!geonamesUsername) {
+        throw new Error("Geonames username is not defined in the environment variables.");
+    }
+  
+    const url = `http://api.geonames.org/searchJSON?q=${destination}&maxRows=1&username=${geonamesUsername}`;
+  
     try {
-        // Get city location from server
-        const locationResponse = await fetch('/getCity', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ city })
-        });
-        const locationData = await locationResponse.json();
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Geonames API request failed with status ${response.status}`);
+        }
+  
+        const data = await response.json();
+        if (!data || !data.geonames || data.geonames.length === 0) {
+            throw new Error("No location data found for the given destination.");
+        }
+  
+        return data.geonames[0];
+    } catch (error) {
+        console.error("Error fetching location data:", error);
+        return null;
+    }
+}
 
-        // Handle no city found
-        if (locationData.error) {
-            document.getElementById('results').innerHTML = `<p>${locationData.message}</p>`;
+// Function to fetch weather data from Weatherbit API
+const weatherbitApiKey = process.env.WEATHERBIT_API_KEY || '0ad7a46e1239486cb42590ed71dd7430';
+
+async function fetchWeatherData(lat, lon) {
+    const url = `https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${weatherbitApiKey}`;
+    
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Weatherbit API request failed with status ${response.status}`);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error fetching weather data:", error);
+        return null;
+    }
+}
+
+// Function to fetch image data from Pixabay API
+async function fetchImageData(destination) {
+    const url = `https://pixabay.com/api/?key=${pixabayApiKey}&q=${encodeURIComponent(destination)}&image_type=photo`;
+    
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Pixabay API request failed with status ${response.status}`);
+        }
+        const data = await response.json();
+        return data.hits[0]; // or handle cases when there are no hits
+    } catch (error) {
+        console.error("Error fetching image data:", error);
+        return null;
+    }
+}
+
+
+// Function to handle form submission
+async function handleTravelForm(event) {
+    event.preventDefault();
+  
+    const destination = document.getElementById('destination').value;
+    const date = document.getElementById('date').value;
+  
+    try {
+        const locationData = await fetchLocationData(destination);
+  
+        if (!locationData) {
+            alert("Unable to retrieve location data. Please try again.");
             return;
         }
+  
+        const weatherData = await fetchWeatherData(locationData.lat, locationData.lng);
+        const imageData = await fetchImageData(destination);
+  
+        if (weatherData && imageData) {
+            console.log("Weather Data:", weatherData);
+            console.log("Image Data:", imageData);
 
-        const { lng, lat } = locationData;
+            // Update the DOM with weather data (temperature)
+            const temperatureElement = document.getElementById('temperature');
+            const temperature = weatherData.data[0].temp; // Get temperature from the API response
+            temperatureElement.textContent = `Temperature: ${temperature} °C`; // Set text content to display the temperature
 
-        // Get weather data from server
-        const weatherResponse = await fetch('/getWeather', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ lng, lat, remainingDays })
-        });
-        const weatherData = await weatherResponse.json();
-
-        // Get city image from server
-        const picResponse = await fetch('/getCityPic', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ city_name: city })
-        });
-        const picData = await picResponse.json();
-
-        // Update the UI with results
-        document.getElementById('results').innerHTML = `
-            <h2>Weather in ${city}</h2>
-            <p>${weatherData.description}</p>
-            <p>Temperature: ${weatherData.temp}°C</p>
-            <p>Max Temperature: ${weatherData.app_max_temp}°C</p>
-            <p>Min Temperature: ${weatherData.app_min_temp}°C</p>
-            <img src="${picData.image}" alt="${city}">
-        `;
+            // Update the DOM with image data
+            const imageElement = document.getElementById('destination-image');
+            imageElement.src = imageData.previewURL; // Set image source to the image from Pixabay
+            imageElement.alt = `Image of ${destination}`; // Set an appropriate alt text for accessibility
+        } else {
+            alert("Failed to retrieve data from APIs.");
+        }
+  
     } catch (error) {
-        console.error("Error occurred:", error);
-        document.getElementById('results').innerHTML = `<p>Something went wrong. Please try again later.</p>`;
+        console.error("Error handling travel form submission:", error);
     }
-};
+}
+
+
+document.getElementById('travel-form').addEventListener('submit', handleTravelForm);
