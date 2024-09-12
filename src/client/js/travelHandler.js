@@ -1,6 +1,3 @@
-import { fetchLocationData, fetchWeatherData, fetchImageData } from './api';
-import { getDaysUntilDeparture, getTripDuration } from './utils';
-
 export async function handleTravelForm(event) {
     event.preventDefault();
 
@@ -15,60 +12,46 @@ export async function handleTravelForm(event) {
         return;
     }
 
-    try {
-        // Fetch location data
-        const locationData = await fetchLocationData(destination);
-        if (!locationData) {
-            alert("Unable to retrieve location data. Please try again.");
-            return;
-        }
+    // Convert input dates to Date objects
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
 
+    // Get today's date, but reset time to midnight for accurate comparison
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to 00:00:00 for accurate date comparison
+
+    // Check if start date is in the past
+    if (startDateObj < today) {
+        alert("The start date can't be in the past. Please choose a future date.");
+        return;
+    }
+
+    // Check if the end date is after the start date
+    if (endDateObj <= startDateObj) {
+        alert("The return date must be after the start date. Please adjust your dates.");
+        return;
+    }
+
+    try {
+        // Fetch location, weather, and image data using your existing API calls
+        const locationData = await fetchLocationData(destination);
         const { lat, lng } = locationData;
 
-        // Fetch weather data
         const weatherData = await fetchWeatherData(lat, lng);
-        if (!weatherData) {
-            alert("Unable to retrieve weather data.");
-            return;
-        }
-
-        // Fetch image data
         const imageData = await fetchImageData(destination);
-        if (!imageData) {
-            alert("Unable to retrieve image data.");
-            return;
-        }
 
+        // Update DOM to display results
         // Calculate and display trip details
         const daysUntilTrip = getDaysUntilDeparture(startDate);
         const tripDuration = getTripDuration(startDate, endDate);
 
-        // Update the DOM with weather data
-        const temperatureElement = document.getElementById('temperature');
-        const temperature = weatherData.data[0]?.temp;
-        if (temperature) {
-            temperatureElement.textContent = `Temperature: ${temperature} °C`;
-        } else {
-            temperatureElement.textContent = "Temperature data unavailable";
-        }
-
-        // Update the DOM with image data
-        const imageElement = document.getElementById('destination-image');
-        if (imageData.previewURL) {
-            imageElement.src = imageData.previewURL;
-            imageElement.alt = `Image of ${destination}`;
-        } else {
-            imageElement.alt = "Image not available";
-        }
-
-        // Display trip details
         document.getElementById('days-until-trip').textContent = `Days until trip: ${daysUntilTrip}`;
         document.getElementById('trip-duration').textContent = `Trip duration: ${tripDuration} days`;
+
         document.getElementById('start-date-display').textContent = `Start date: ${startDate}`;
         document.getElementById('end-date-display').textContent = `End date: ${endDate}`;
-
     } catch (error) {
-        console.error("Error handling travel form submission:", error);
-        alert("An error occurred while processing your request. Please try again.");
+        console.error("Error:", error);
+        alert("An error occurred while processing your request.");
     }
 }
