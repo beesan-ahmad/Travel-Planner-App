@@ -1,109 +1,74 @@
-const pixabayApiKey = process.env.PIXABAY_KEY || '45771225-18d216db83f778795e65302de';
+import { fetchLocationData, fetchWeatherData, fetchImageData } from './api';
+import { getDaysUntilDeparture, getTripDuration } from './utils';
 
-// Function to fetch location data from Geonames API
-async function fetchLocationData(destination) {
-    const geonamesUsername = 'beesan';
-  
-    if (!geonamesUsername) {
-        throw new Error("Geonames username is not defined in the environment variables.");
-    }
-  
-    const url = `http://api.geonames.org/searchJSON?q=${destination}&maxRows=1&username=${geonamesUsername}`;
-  
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Geonames API request failed with status ${response.status}`);
-        }
-  
-        const data = await response.json();
-        if (!data || !data.geonames || data.geonames.length === 0) {
-            throw new Error("No location data found for the given destination.");
-        }
-  
-        return data.geonames[0];
-    } catch (error) {
-        console.error("Error fetching location data:", error);
-        return null;
-    }
-}
-
-// Function to fetch weather data from Weatherbit API
-const weatherbitApiKey = process.env.WEATHERBIT_API_KEY || '0ad7a46e1239486cb42590ed71dd7430';
-
-async function fetchWeatherData(lat, lon) {
-    const url = `https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${weatherbitApiKey}`;
-    
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Weatherbit API request failed with status ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error fetching weather data:", error);
-        return null;
-    }
-}
-
-// Function to fetch image data from Pixabay API
-async function fetchImageData(destination) {
-    const url = `https://pixabay.com/api/?key=${pixabayApiKey}&q=${encodeURIComponent(destination)}&image_type=photo`;
-    
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Pixabay API request failed with status ${response.status}`);
-        }
-        const data = await response.json();
-        return data.hits[0]; // or handle cases when there are no hits
-    } catch (error) {
-        console.error("Error fetching image data:", error);
-        return null;
-    }
-}
-
-
-// Function to handle form submission
-async function handleTravelForm(event) {
+export async function handleTravelForm(event) {
     event.preventDefault();
-  
-    const destination = document.getElementById('destination').value;
-    const date = document.getElementById('date').value;
-  
+
+    // Get form values
+    const destination = document.getElementById('destination').value.trim();
+    const startDate = document.getElementById('start-date').value;
+    const endDate = document.getElementById('end-date').value;
+
+    // Validate the form inputs
+    if (!destination || !startDate || !endDate) {
+        alert("Please provide all required fields: destination, start date, and end date.");
+        return;
+    }
+
     try {
+        // Fetch location data
         const locationData = await fetchLocationData(destination);
-  
         if (!locationData) {
             alert("Unable to retrieve location data. Please try again.");
             return;
         }
-  
-        const weatherData = await fetchWeatherData(locationData.lat, locationData.lng);
-        const imageData = await fetchImageData(destination);
-  
-        if (weatherData && imageData) {
-            console.log("Weather Data:", weatherData);
-            console.log("Image Data:", imageData);
 
-            // Update the DOM with weather data (temperature)
-            const temperatureElement = document.getElementById('temperature');
-            const temperature = weatherData.data[0].temp; // Get temperature from the API response
-            temperatureElement.textContent = `Temperature: ${temperature} °C`; // Set text content to display the temperature
+        const { lat, lng } = locationData;
 
-            // Update the DOM with image data
-            const imageElement = document.getElementById('destination-image');
-            imageElement.src = imageData.previewURL; // Set image source to the image from Pixabay
-            imageElement.alt = `Image of ${destination}`; // Set an appropriate alt text for accessibility
-        } else {
-            alert("Failed to retrieve data from APIs.");
+        // Fetch weather data
+        const weatherData = await fetchWeatherData(lat, lng);
+        if (!weatherData) {
+            alert("Unable to retrieve weather data.");
+            return;
         }
-  
+
+        // Fetch image data
+        const imageData = await fetchImageData(destination);
+        if (!imageData) {
+            alert("Unable to retrieve image data.");
+            return;
+        }
+
+        // Calculate and display trip details
+        const daysUntilTrip = getDaysUntilDeparture(startDate);
+        const tripDuration = getTripDuration(startDate, endDate);
+
+        // Update the DOM with weather data
+        const temperatureElement = document.getElementById('temperature');
+        const temperature = weatherData.data[0]?.temp;
+        if (temperature) {
+            temperatureElement.textContent = `Temperature: ${temperature} °C`;
+        } else {
+            temperatureElement.textContent = "Temperature data unavailable";
+        }
+
+        // Update the DOM with image data
+        const imageElement = document.getElementById('destination-image');
+        if (imageData.previewURL) {
+            imageElement.src = imageData.previewURL;
+            imageElement.alt = `Image of ${destination}`;
+        } else {
+            imageElement.alt = "Image not available";
+        }
+
+        // Display trip details
+        document.getElementById('days-until-trip').textContent = `Days until trip: ${daysUntilTrip}`;
+        document.getElementById('trip-duration').textContent = `Trip duration: ${tripDuration} days`;
+        document.getElementById('start-date-display').textContent = `Start date: ${startDate}`;
+        document.getElementById('end-date-display').textContent = `End date: ${endDate}`;
+
     } catch (error) {
         console.error("Error handling travel form submission:", error);
+        alert("An error occurred while processing your request. Please try again.");
     }
 }
-
-
-document.getElementById('travel-form').addEventListener('submit', handleTravelForm);

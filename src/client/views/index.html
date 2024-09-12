@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Travel App</title>
-    <link href="../styles/all-styles.scss">
+    <link  href="../styles/all-styles.scss"> <!-- Make sure this path is correct -->
 </head>
 
 <body>
@@ -20,19 +20,26 @@
                 <label for="destination">Enter the city:</label>
                 <input type="text" id="destination" name="destination" required>
 
-                <label for="date">Enter your travel date:</label>
-                <input type="date" id="date" name="date" required>
+                <label for="start-date">Enter your start travel date:</label>
+                <input type="date" id="start-date" name="start-date" required>
+
+                <label for="end-date">Enter your return travel date:</label>
+                <input type="date" id="end-date" name="end-date" required>
 
                 <button type="submit">Submit</button>
             </form>
 
             <div id="weather-result">
                 <p id="temperature"></p>
-            </div>
-            <div id="image-result">
-                <img id="destination-image" />
+                <p id="days-until-trip"></p>
+                <p id="trip-duration"></p>
+                <p id="start-date-display"></p>
+                <p id="end-date-display"></p>
             </div>
 
+            <div id="image-result">
+                <img id="destination-image" alt="Destination Image" />
+            </div>
         </section>
     </main>
 
