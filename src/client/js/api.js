@@ -52,7 +52,7 @@ export async function fetchWeatherData(lat, lng) {
 // Fetch image data from Pixabay API
 export async function fetchImageData(destination) {
     try {
-        const response = await axios.get('https://pixabay.com/api/', {
+        const response = await axios.get('https://pixabay.com/api/?', {
             params: {
                 q: destination,
                 key: process.env.PIXABAY_KEY, // Your Pixabay API key stored in the environment

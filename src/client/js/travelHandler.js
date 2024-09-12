@@ -1,3 +1,6 @@
+import { fetchLocationData, fetchWeatherData, fetchImageData } from './api';
+import { getDaysUntilDeparture, getTripDuration } from './utils';
+
 export async function handleTravelForm(event) {
     event.preventDefault();
 
@@ -50,6 +53,17 @@ export async function handleTravelForm(event) {
 
         document.getElementById('start-date-display').textContent = `Start date: ${startDate}`;
         document.getElementById('end-date-display').textContent = `End date: ${endDate}`;
+
+        // Check if the image data exists, then update the DOM to display the image
+        if (imageData && imageData.webformatURL) {
+            const imageElement = document.getElementById('destination-image');
+            imageElement.src = imageData.webformatURL;  // Set the image source to the fetched image URL
+            imageElement.alt = `Image of ${destination}`;  // Provide alt text for the image
+        } else {
+            // If no image is found, display a placeholder or error message
+            document.getElementById('destination-image').src = 'placeholder.jpg'; // Fallback image
+            document.getElementById('destination-image').alt = 'No image available';
+        }
     } catch (error) {
         console.error("Error:", error);
         alert("An error occurred while processing your request.");
