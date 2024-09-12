@@ -23,11 +23,16 @@ section {
         border: 1px solid goldenrod;
         border-radius: 6px;
         padding: 10px;
-        max-width:700px;
+        max-width: 700px;
         // display: inline-flex;
         align-items: center;
         justify-content: center;
-        #days-until-trip, #trip-duration, #start-date-display,#end-date-display  {
+
+        #days-until-trip,
+        #trip-duration,
+        #start-date-display,
+        #end-date-display,
+        #temperature {
             margin-bottom: 10px;
         }
 
