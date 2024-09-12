@@ -1,6 +1,19 @@
 import { fetchLocationData, fetchWeatherData, fetchImageData } from './api';
 import { getDaysUntilDeparture, getTripDuration } from './utils';
 
+// Function to validate destination input
+function validateDestinationInput(destination) {
+    // Allow only alphabetical letters and spaces; reject numbers or special characters
+    const destinationPattern = /^[a-zA-Z\s]+$/;
+
+    if (destination.length < 3) {
+        return "Destination name must be at least 3 characters long.";
+    } else if (!destinationPattern.test(destination)) {
+        return "Invalid destination name. Please enter letters only, no numbers or special characters.";
+    }
+    return null; // Valid input
+}
+
 export async function handleTravelForm(event) {
     event.preventDefault();
 
@@ -10,8 +23,14 @@ export async function handleTravelForm(event) {
     const endDate = document.getElementById('end-date').value;
 
     // Validate the form inputs
+    const validationError = validateDestinationInput(destination);
+    if (validationError) {
+        alert(validationError);  // Show error message
+        return;
+    }
+
     if (!destination || !startDate || !endDate) {
-        alert("Please provide all required fields: destination, start date, and end date.");
+        alert("Please fill in all fields.");
         return;
     }
 
@@ -36,14 +55,26 @@ export async function handleTravelForm(event) {
     }
 
     try {
-        // Fetch location, weather, and image data using your existing API calls
+        // Fetch location data
         const locationData = await fetchLocationData(destination);
+        if (!locationData || !locationData.lat || !locationData.lng) {
+            throw new Error("Location data not found.");
+        }
+
         const { lat, lng } = locationData;
 
+        // Fetch weather data
         const weatherData = await fetchWeatherData(lat, lng);
-        const imageData = await fetchImageData(destination);
+        if (!weatherData) {
+            throw new Error("Weather data not found.");
+        }
 
-        // Update DOM to display results
+        // Fetch image data
+        const imageData = await fetchImageData(destination);
+        if (!imageData) {
+            throw new Error("Image data not found.");
+        }
+
         // Calculate and display trip details
         const daysUntilTrip = getDaysUntilDeparture(startDate);
         const tripDuration = getTripDuration(startDate, endDate);
@@ -54,18 +85,26 @@ export async function handleTravelForm(event) {
         document.getElementById('start-date-display').textContent = `Start date: ${startDate}`;
         document.getElementById('end-date-display').textContent = `End date: ${endDate}`;
 
-        // Check if the image data exists, then update the DOM to display the image
+        // Display image if available
+        const imageElement = document.getElementById('destination-image');
         if (imageData && imageData.webformatURL) {
-            const imageElement = document.getElementById('destination-image');
-            imageElement.src = imageData.webformatURL;  // Set the image source to the fetched image URL
-            imageElement.alt = `Image of ${destination}`;  // Provide alt text for the image
+            imageElement.src = imageData.webformatURL;
+            imageElement.alt = `Image of ${destination}`;
+            imageElement.style.display = 'block'; // Make sure image is visible
         } else {
-            // If no image is found, display a placeholder or error message
-            document.getElementById('destination-image').src = 'placeholder.jpg'; // Fallback image
-            document.getElementById('destination-image').alt = 'No image available';
+            imageElement.style.display = 'none'; // Hide image if not available
         }
+
     } catch (error) {
-        console.error("Error:", error);
-        alert("An error occurred while processing your request.");
+        console.error("Error:", error.message);
+        if (error.message.includes("Location data not found")) {
+            alert("No location data found. Please enter a valid destination.");
+        } else if (error.message.includes("Weather data not found")) {
+            alert("No weather data found. Please try again later.");
+        } else if (error.message.includes("Image data not found")) {
+            alert("No image data found. Please try again later.");
+        } else {
+            alert("An error occurred while processing your request. Please try again.");
+        }
     }
 }
