@@ -2,13 +2,81 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    font-family: Arial, sans-serif;
 }
 
 main {
     flex: 2;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 section {
     max-width: 800px;
-    margin: 50px auto;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+
+    #weather-result {
+        border: 1px solid goldenrod;
+        border-radius: 6px;
+        padding: 10px;
+        max-width:700px;
+        // display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        #days-until-trip, #trip-duration, #start-date-display,#end-date-display  {
+            margin-bottom: 10px;
+        }
+
+    }
+
+    #image-result {
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin-bottom: 20px;
+        max-width: 700px;
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+    }
+}
+
+// Media queries
+@media (max-width: 768px) {
+    section {
+        padding: 10px;
+    }
+
+    #weather-result {
+        font-size: 14px;
+    }
+
+    #image-result img {
+        max-width: 90%;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    form {
+        width: 100%;
+        padding: 10px;
+    }
+
+    button {
+        padding: 10px;
+        font-size: 14px;
+    }
 }
